@@ -1,40 +1,50 @@
 import React from "react";
-import { useAuth } from "../App.jsx";  // Import context
+import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight, User } from "lucide-react";
+import { useAuth } from "../App.jsx";
 
 export default function TopBar() {
-  const { setShowLogin } = useAuth();
+  const { user, setShowLogin } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="sticky top-0 z-20 bg-zinc-900 border-b border-zinc-800">
       <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-4 flex-1">
-          <button className="p-2 rounded-full bg-black hover:bg-zinc-800 transition">
-            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-full bg-black hover:bg-zinc-800 transition"
+          >
+            <ChevronLeft className="w-5 h-5 text-white" />
           </button>
-          <button className="p-2 rounded-full bg-black hover:bg-zinc-800 transition">
-            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
+          <button
+            onClick={() => navigate(1)}
+            className="p-2 rounded-full bg-black hover:bg-zinc-800 transition"
+          >
+            <ChevronRight className="w-5 h-5 text-white" />
           </button>
-          <div className="flex-1 max-w-xl">
-            <div className="flex items-center gap-3 bg-zinc-800 rounded-full px-4 py-2.5">
-              <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="11" cy="11" r="8" strokeWidth="2"/>
-                <path d="M21 21l-4.35-4.35" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-              <input
-                type="text"
-                placeholder="What you want to listen to?"
-                className="bg-transparent outline-none w-full placeholder:text-gray-400 text-sm text-white"
-              />
-            </div>
-          </div>
         </div>
-        <button onClick={() => setShowLogin(true)} className="flex items-center justify-center w-10 h-10 rounded-full bg-green-500 text-black font-bold text-lg">
-          M
-        </button>
+
+        <div className="flex items-center gap-4">
+          {user ? (
+            <button
+              onClick={() => setShowLogin(true)}
+              className="flex items-center gap-2 bg-black hover:bg-zinc-800 rounded-full px-4 py-2 transition"
+            >
+              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-black font-bold">
+                {user.username?.charAt(0).toUpperCase() || 'U'}
+              </div>
+              <span className="text-white font-semibold">{user.username}</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowLogin(true)}
+              className="bg-green-500 hover:bg-green-600 text-black font-semibold px-6 py-2 rounded-full transition"
+            >
+              Log in
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

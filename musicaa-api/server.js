@@ -9,7 +9,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -22,6 +22,8 @@ app.use('/uploads', express.static('uploads'));  // Serve uploaded files
 // Routes
 app.use('/api/auth', require('./routes/auth.js'));
 app.use('/api/tracks', require('./routes/tracks.js'));
+app.use('/api/playlists', require('./routes/playlists.js'));
+app.use('/api/queue', require('./routes/queue.js'));
 
 // DB Connection
 mongoose.connect(process.env.MONGO_URI)

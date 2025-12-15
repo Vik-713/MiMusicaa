@@ -1,62 +1,82 @@
-import React, { useState, useEffect } from "react";
-import MusicCard from "../components/MusicCard.jsx";
-import axios from 'axios';
-import { useAuth } from "../App.jsx";
-
-function Section({ title, items, onPlay }) {
-  return (
-    <section className="mb-8">
-      <h2 className="text-white text-2xl font-bold mb-4">{title}</h2>
-      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-        {items.map((item, idx) => (
-          <MusicCard key={`${title}-${idx}`} {...item} onPlay={() => onPlay(item._id, item)} />
-        ))}
-      </div>
-    </section>
-  );
-}
+import React, { useState, useEffect } from 'react';
+import { trackAPI } from '../services/api';
+import MusicCard from '../components/MusicCard';
 
 export default function Home() {
+  const [tracks, setTracks] = useState([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState([]);
-  const [trendingNow, setTrendingNow] = useState([]);
-  const [madeForYou, setMadeForYou] = useState([]);
-  const [popularArtists, setPopularArtists] = useState([]);
-  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;  // Require login
-      try {
-        const [recentRes, allRes] = await Promise.all([
-          axios.get('/tracks/recent'),
-          axios.get('/tracks')
-        ]);
-        setRecentlyPlayed(recentRes.data.slice(0,5).map(t => ({ ...t, coverColor: '#f5d5c8' })));
-        setTrendingNow(allRes.data.slice(0,4).map(t => ({ ...t, coverColor: '#2a2a3e' })));
-        setMadeForYou(recentRes.data.slice(0,4).map(t => ({ ...t, coverColor: '#4a5f8f' })));
-        setPopularArtists(allRes.data.slice(4,8).map(t => ({ ...t, coverColor: '#a5b8d4' })));
-      } catch (err) {
-        console.error('Fetch error:', err);
-        // Fallback dummy data if API fails
-        setRecentlyPlayed([{ title: 'Starlight Symphony', artist: 'The Chromatics Luna Serenade', _id: '1', coverColor: '#f5d5c8' }]);
-      }
-    };
-    fetchData();
-  }, [user]);
+    fetchTracks();
+    fetchRecentlyPlayed();
+  }, []);
 
-  const handlePlay = (id, track) => {
-    // Set current track in PlayerBar (via context or prop drilling; simplified here)
-    console.log('Playing:', track.title);
-    // PlayerBar handles increment via its own logic
+  const fetchTracks = async () => {
+    try {
+      const response = await trackAPI.getTracks();
+      setTracks(response.data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Failed to fetch tracks:', err);
+      setLoading(false);
+    }
   };
+
+  const fetchRecentlyPlayed = async () => {
+    try {
+      const response = await trackAPI.getRecentlyPlayed();
+      setRecentlyPlayed(response.data);
+    } catch (err) {
+      // User might not be logged in
+      console.log('Not logged in or no recent tracks');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-400">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
-      <h1 className="text-4xl font-bold text-white mb-8">Good Evening</h1>
-      <Section title="Recently Played" items={recentlyPlayed} onPlay={handlePlay} />
-      <Section title="Trending Now" items={trendingNow} onPlay={handlePlay} />
-      <Section title="Made for You" items={madeForYou} onPlay={handlePlay} />
-      <Section title="Popular Artists" items={popularArtists} onPlay={handlePlay} />
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">Good evening</h1>
+        <p className="text-gray-400">Discover your next favorite song</p>
+      </div>
+
+      {/* Recently Played */}
+      {recentlyPlayed.length > 0 && (
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-4">Recently Played</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {recentlyPlayed.slice(0, 5).map((track) => (
+              <MusicCard key={track._id} track={track} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* All Tracks */}
+      <div>
+        <h2 className="text-2xl font-bold text-white mb-4">
+          {tracks.length > 0 ? `All Tracks (${tracks.length})` : 'All Tracks'}
+        </h2>
+        {tracks.length === 0 ? (
+          <div className="flex items-center justify-center py-12 bg-zinc-800/50 rounded-lg">
+            <p className="text-gray-400">No tracks available. Please seed the database.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {tracks.map((track) => (
+              <MusicCard key={track._id} track={track} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
