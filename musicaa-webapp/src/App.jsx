@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Sidebar from "./components/Sidebar.jsx";
-import TopBar from "./components/Topbar.jsx";
+import Navbar from "./components/Navbar.jsx";
 import PlayerBar from "./components/PlayerBar.jsx";
 import Home from "./pages/Home.jsx";
 import Search from "./pages/Search.jsx";
@@ -49,20 +48,17 @@ export default function App() {
     <AuthContext.Provider value={{ user, login, logout, showLogin, setShowLogin }}>
       <PlayerProvider>
         <Router>
-          <div className="flex h-screen bg-zinc-900 text-white overflow-hidden">
-            <Sidebar />
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <TopBar />
-              <main className="flex-1 overflow-y-auto bg-gradient-to-b from-zinc-900 to-black px-8 pt-6 pb-32 scrollbar-hide">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/search" element={<Search />} />
-                  <Route path="/library" element={<Library />} />
-                  <Route path="/liked" element={<Library />} />
-                  <Route path="/playlists" element={<Library />} />
-                </Routes>
-              </main>
-            </div>
+          <div className="flex flex-col h-screen bg-zinc-900 text-white overflow-hidden">
+            <Navbar />
+            <main className="flex-1 overflow-y-auto bg-gradient-to-b from-zinc-900 to-black px-8 pt-6 pb-32 scrollbar-hide">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/library" element={<Library />} />
+                <Route path="/liked" element={<Library />} />
+                <Route path="/playlists" element={<Library />} />
+              </Routes>
+            </main>
             <PlayerBar />
           </div>
 
