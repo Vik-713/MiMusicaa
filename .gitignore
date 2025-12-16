@@ -49,12 +49,6 @@ coverage/
 .nyc_output/
 
 # Uploads and media files (backend)
-uploads/
-*.mp3
-*.wav
-*.flac
-*.m4a
-*.ogg
 
 # Temporary files
 tmp/
